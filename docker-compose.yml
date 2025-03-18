@@ -1,0 +1,44 @@
+services:
+  backend:
+    container_name: fastapi_backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: yolo_backend:1.0
+    expose:
+      - '8000'
+    networks:
+      - app_network
+    restart: always
+
+  frontend:
+    container_name: angular_frontend
+    build:
+      context: ./yolo
+      dockerfile: Dockerfile
+    image: yolo_frontend:1.0
+    expose:
+      - '80'
+    networks:
+      - app_network
+    restart: always
+
+  proxy:
+    image: nginx:latest
+    container_name: nginx_proxy
+    ports:
+      - '80:80'
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      # Serve the built Angular files; adjust the path if needed:
+      - ./yolo/dist/yolo:/usr/share/nginx/html:ro
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - app_network
+    restart: always
+
+networks:
+  app_network:
+    driver: bridge
