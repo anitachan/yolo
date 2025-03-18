@@ -1,0 +1,35 @@
+<div class="container">
+  <h1 class="title">Webcam Real-Time Processing</h1>
+  <div class="controls">
+    <div class="control-group">
+      <label for="cameraSelect">Select Camera:</label>
+      <select id="cameraSelect" [(ngModel)]="selectedCamera" (change)="startCameraStream()">
+        <option *ngFor="let cam of availableCameras" [value]="cam.deviceId">
+          {{ cam.label || cam.deviceId }}
+        </option>
+      </select>
+    </div>
+    <div class="control-group">
+      <label for="objectSelect">Select Object:</label>
+      <select id="objectSelect" [(ngModel)]="selectedObject">
+        <option *ngFor="let obj of fixedObjects" [value]="obj">
+          {{ obj }}
+        </option>
+      </select>
+    </div>
+    <button class="toggle-btn" (click)="toggleProcessing()">
+      {{ processing ? 'Stop Processing' : 'Start Processing' }}
+    </button>
+  </div>
+  <div class="video-section">
+    <!-- The video element stays in the DOM, but is hidden during processing -->
+    <video #video [hidden]="processing" autoplay class="video-feed"></video>
+  </div>
+  <canvas #canvas width="640" height="480" hidden></canvas>
+  @if (processedImage) {
+    <div class="output-section">
+      <h2>Processed Output</h2>
+      <img [src]="'data:image/jpeg;base64,' + processedImage" alt="Processed Output" class="output-image">
+    </div>
+  }
+</div>

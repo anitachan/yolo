@@ -1,0 +1,42 @@
+# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+
+# Compiled output
+yolo/dist
+yolo/tmp
+yolo/out-tsc
+yolo/bazel-out
+
+# Node
+/yolo/node_modules
+yolo/npm-debug.log
+yolo/yarn-error.log
+
+# IDEs and editors
+yolo/.idea/
+yolo/.project
+yolo/.classpath
+yolo/.c9/
+yolo/*.launch
+yolo/.settings/
+yolo/*.sublime-workspace
+
+# Visual Studio Code
+yolo/.vscode/*
+yolo/!.vscode/settings.json
+yolo/!.vscode/tasks.json
+yolo/!.vscode/launch.json
+yolo/!.vscode/extensions.json
+yolo/.history/*
+
+# Miscellaneous
+yolo/.angular/cache
+yolo.sass-cache/
+yolo/connect.lock
+yolo/coverage
+yolo/libpeerconnection.log
+yolotestem.log
+yolo/typings
+
+# System files
+.DS_Store
+Thumbs.db
