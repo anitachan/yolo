@@ -15,8 +15,6 @@ export class WebcamComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('video', { static: false }) video!: ElementRef;
   @ViewChild('canvas', { static: true }) canvas!: ElementRef;
 
-  subscription = new Subscription();
-
   fixedObjects = ["person", "cell phone", "bicycle", "car", "dog", "backpack", "umbrella", "handbag", "tie", "suitcase", "frisbee", "bottle", "cup", "spoon", "chair", "door", "mouse", "keyboard", "laptop", "tv", "book"];
   selectedObject = this.fixedObjects[0];
 
@@ -29,19 +27,24 @@ export class WebcamComponent implements OnInit, OnDestroy, AfterViewInit {
   processingInterval: any;
   videoStream: MediaStream | null = null;
 
+  loading: boolean = false;
+  statusMessage: string = '';
+  errorMessage: string = '';
+
+  private readonly subscription = new Subscription();
   private readonly imageProcessingService = inject(ImageProcessingService);
   private readonly platformId = inject(PLATFORM_ID);
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
+      this.statusMessage = "Initializing application...";
       this.getCameras();
       this.imageProcessingService.connect();
-      // Suscribirse para obtener la imagen procesada
       this.subscription.add(
         this.imageProcessingService.processedData$.subscribe((data: ProcessedData) => {
           this.processedImage = data.processed_image;
-          this.detections = data.detections;
-          console.log("Detections:", data.detections);
+          this.detections = data.detections.map(detection => ({ label: detection.label, classification: detection.classification }));
+          this.statusMessage = "Image processed successfully";
         })
       );
       this.imageProcessingService.sendSelectedObject(this.selectedObject);
@@ -65,35 +68,51 @@ export class WebcamComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   getCameras() {
+    if (!isPlatformBrowser(this.platformId)) { return; }
     navigator.mediaDevices.enumerateDevices()
       .then(devices => {
         this.availableCameras = devices.filter(device => device.kind === 'videoinput');
         if (this.availableCameras.length > 0) {
           this.selectedCamera = this.availableCameras[0].deviceId;
           this.startCameraStream();
+        } else {
+          this.errorMessage = "No camera devices found.";
+          this.statusMessage = "";
         }
       })
-      .catch(err => console.error("Error enumerating devices:", err));
+      .catch(err => {
+        console.error("Error enumerating devices:", err);
+        this.errorMessage = "Error accessing camera devices.";
+        this.statusMessage = "";
+      });
   }
 
   startCameraStream() {
-    if (isPlatformBrowser(this.platformId) && this.selectedCamera) {
-      const constraints = {
-        video: { deviceId: { exact: this.selectedCamera } }
-      };
-      navigator.mediaDevices.getUserMedia(constraints)
-        .then(stream => {
-          this.videoStream = stream;
-          if (this.video?.nativeElement) {
-            this.video.nativeElement.srcObject = stream;
-          }
-          this.startFrameProcessing();
-        })
-        .catch(err => console.error("Error accessing webcam:", err));
-    }
+    if (!isPlatformBrowser(this.platformId) || !this.selectedCamera) { return; }
+    this.loading = true;
+    this.statusMessage = "Accessing webcam...";
+    const constraints = {
+      video: { deviceId: { exact: this.selectedCamera } }
+    };
+    navigator.mediaDevices.getUserMedia(constraints)
+      .then(stream => {
+        this.videoStream = stream;
+        if (this.video?.nativeElement) {
+          this.video.nativeElement.srcObject = stream;
+        }
+        this.loading = false;
+        this.statusMessage = "Webcam stream started.";
+        this.startFrameProcessing();
+      })
+      .catch(err => {
+        console.error("Error accessing webcam:", err);
+        this.errorMessage = "Error accessing webcam. Please ensure you have granted permission.";
+        this.statusMessage = "";
+        this.loading = false;
+      });
   }
+
   startFrameProcessing(): void {
-    // Envía un frame cada 1000 ms (1 segundo); ajusta este valor según tus necesidades
     this.processingInterval = setInterval(() => {
       this.captureAndSendFrame();
     }, 1000);
@@ -114,5 +133,6 @@ export class WebcamComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onSelectedObjectChange(): void {
     this.imageProcessingService.sendSelectedObject(this.selectedObject);
+    this.statusMessage = `Selected object changed to "${this.selectedObject}"`;
   }
 }

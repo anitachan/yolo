@@ -113,14 +113,12 @@ def process_frame(frame: np.ndarray, selected_object: str):
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    # Valor por defecto; se puede actualizar vía mensaje JSON
     selected_object = "person"
     while True:
         try:
             message = await websocket.receive()
             print("Mensaje recibido:", message)
             
-            # Si se recibe un mensaje de texto, intentar interpretar si es un comando para actualizar el objeto
             if "text" in message and message["text"]:
                 try:
                     data_json = json.loads(message["text"])

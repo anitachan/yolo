@@ -1,32 +1,62 @@
+@if(loading){
+  <div class="spinner"></div>
+}
+@else {
 <div class="container">
-  <h1 class="title">Webcam Real-Time Processing</h1>
+  <h1 class="title">Real Time Detection - Border detections - Segmentation </h1>
+  <div class="messages">
+    @if(statusMessage){
+      <p class="status-message">{{ statusMessage }}</p>
+    }
+    @if(errorMessage){
+      <p class="error-message">{{ errorMessage }}</p>
+    }
+  </div>
+
   <div class="controls">
     <div class="control-group">
       <label for="cameraSelect">Select Camera:</label>
       <select id="cameraSelect" [(ngModel)]="selectedCamera" (change)="startCameraStream()">
-        <option *ngFor="let cam of availableCameras" [value]="cam.deviceId">
-          {{ cam.label || cam.deviceId }}
-        </option>
+        @for(cam of availableCameras; track cam){
+          <option [value]="cam.deviceId">
+            {{ cam.label }}
+          </option>
+        }
       </select>
     </div>
     <div class="control-group">
       <label for="objectSelect">Select Object:</label>
       <select id="objectSelect" [(ngModel)]="selectedObject" (change)="onSelectedObjectChange()">
-        <option *ngFor="let obj of fixedObjects" [value]="obj">
-          {{ obj }}
-        </option>
+        @for(object of fixedObjects; track object){
+          <option [value]="object">
+            {{ object }}
+          </option>
+        }
       </select>
     </div>
   </div>
+
   <div class="side-by-side-container">
     <div class="video-section">
-      <h3>Live Webcam Stream</h3>
+      <h3>Live Webcam</h3>
       <video #video autoplay muted playsinline width="640" height="480"></video>
       <canvas #canvas hidden width="640" height="480"></canvas>
     </div>
 
     <div class="processed-section">
-      <h3>Processed Image</h3>
-      <img [src]="'data:image/jpeg;base64,' + processedImage" alt="Processed Frame" width="640" height="480" />
+      <h3>Processed Image & Detections</h3>
+      <div class="detection-container">
+        <img *ngIf="processedImage" [src]="'data:image/jpeg;base64,' + processedImage" alt="Processed Frame" width="640" height="480" />
+        <div class="detection-list-container">
+          <ul class="detections-list">
+            <li *ngFor="let detection of detections">
+              <span class="detection-label">{{ detection.label }}:</span>
+              <span class="detection-classification">{{ detection.classification }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
+</div>
+}
