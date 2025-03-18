@@ -1,14 +1,14 @@
-# Stage 1: Build Angular App
-FROM node:16 as builder
-WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm install
-COPY . .
-RUN npm run build --prod
+FROM node:18
 
-# Stage 2: Serve the Angular Build with NGINX
-FROM nginx:alpine
-# Adjust "yolo" below if your Angular build output folder differs (e.g., dist/your-angular-app)
-COPY --from=builder /app/dist/yolo /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+LABEL maintainer="frontenderp"
+WORKDIR /frontend
+
+COPY package*.json ./
+RUN npm install
+
+COPY ./app ./
+
+EXPOSE 5000
+
+
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5000"]
