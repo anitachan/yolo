@@ -1,14 +1,18 @@
-FROM node:18
+# Etapa de construcción
+FROM node:18-alpine as builder
 
-LABEL maintainer="frontenderp"
-WORKDIR /frontend
+WORKDIR /app
 
 COPY package*.json ./
 RUN npm install
 
 COPY . .
+RUN npm run build -- --configuration=production
 
-EXPOSE 5000
+# Etapa de producción
+FROM nginx:1.25-alpine
 
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-CMD ["npm", "run", "start", "--", "--host", "0.0.0.0", "--port", "5000"]
+EXPOSE 80
