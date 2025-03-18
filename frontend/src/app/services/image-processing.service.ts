@@ -1,13 +1,11 @@
-import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 
 
 export interface ProcessedData {
   processed_image: string;
   detections: any[];
 }
-
 
 @Injectable({
   providedIn: 'root'

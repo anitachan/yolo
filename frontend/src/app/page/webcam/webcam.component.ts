@@ -43,7 +43,8 @@ export class WebcamComponent implements OnInit, OnDestroy, AfterViewInit {
       this.subscription.add(
         this.imageProcessingService.processedData$.subscribe((data: ProcessedData) => {
           this.processedImage = data.processed_image;
-          this.detections = data.detections.map(detection => ({ label: detection.label, classification: detection.classification }));
+          this.detections = data.detections.map(detection =>
+            ({ label: detection.label, classification: detection.classification }));
           this.statusMessage = "Image processed successfully";
         })
       );

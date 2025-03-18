@@ -1,9 +1,8 @@
-@if(loading){
-  <div class="spinner"></div>
-}
-@else {
 <div class="container">
   <h1 class="title">Real Time Detection - Border detections - Segmentation </h1>
+  @if(loading){
+    <div class="spinner"></div>
+  }
   <div class="messages">
     @if(statusMessage){
       <p class="status-message">{{ statusMessage }}</p>
@@ -59,4 +58,3 @@
     </div>
   </div>
 </div>
-}
