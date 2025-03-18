@@ -1,5 +1,5 @@
-import { AfterViewInit, Component, ElementRef, inject, Inject, OnDestroy, OnInit, PLATFORM_ID, ViewChild } from '@angular/core';
-import { ImageProcessingService } from '../../services/image-processing.service';
+import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, PLATFORM_ID, ViewChild } from '@angular/core';
+import { ImageProcessingService, ProcessedData } from '../../services/image-processing.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Subscription } from 'rxjs';
@@ -24,6 +24,7 @@ export class WebcamComponent implements OnInit, OnDestroy, AfterViewInit {
   selectedCamera: string = '';
 
   processedImage: string = '';
+  detections: any[] = [];
   processing: boolean = false;
   processingInterval: any;
   videoStream: MediaStream | null = null;
@@ -31,12 +32,19 @@ export class WebcamComponent implements OnInit, OnDestroy, AfterViewInit {
   private readonly imageProcessingService = inject(ImageProcessingService);
   private readonly platformId = inject(PLATFORM_ID);
 
-  constructor(
-  ) { }
-
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
       this.getCameras();
+      this.imageProcessingService.connect();
+      // Suscribirse para obtener la imagen procesada
+      this.subscription.add(
+        this.imageProcessingService.processedData$.subscribe((data: ProcessedData) => {
+          this.processedImage = data.processed_image;
+          this.detections = data.detections;
+          console.log("Detections:", data.detections);
+        })
+      );
+      this.imageProcessingService.sendSelectedObject(this.selectedObject);
     }
   }
 
@@ -79,41 +87,32 @@ export class WebcamComponent implements OnInit, OnDestroy, AfterViewInit {
           if (this.video?.nativeElement) {
             this.video.nativeElement.srcObject = stream;
           }
+          this.startFrameProcessing();
         })
         .catch(err => console.error("Error accessing webcam:", err));
     }
   }
-
-  toggleProcessing() {
-    this.processing = !this.processing;
-    if (this.processing) {
-      this.processingInterval = setInterval(() => {
-        this.captureAndProcessFrame();
-      }, 1000);
-    } else {
-      clearInterval(this.processingInterval);
-      if (this.videoStream && this.video?.nativeElement) {
-        this.video.nativeElement.srcObject = this.videoStream;
-      }
-    }
+  startFrameProcessing(): void {
+    // Envía un frame cada 1000 ms (1 segundo); ajusta este valor según tus necesidades
+    this.processingInterval = setInterval(() => {
+      this.captureAndSendFrame();
+    }, 1000);
   }
 
-  captureAndProcessFrame() {
-    // Use the video element to capture the current frame
+  captureAndSendFrame(): void {
     if (!this.video?.nativeElement) {
       return;
     }
     const context = this.canvas.nativeElement.getContext('2d');
     context.drawImage(this.video.nativeElement, 0, 0, 640, 480);
-    this.canvas.nativeElement.toBlob((blob: any) => {
+    this.canvas.nativeElement.toBlob((blob: Blob | null) => {
       if (blob) {
-        const imageFile = new File([blob], 'frame.jpg', { type: 'image/jpeg' });
-        this.subscription.add(this.imageProcessingService.processFrame(this.selectedObject, imageFile)
-          .subscribe(response => {
-            this.processedImage = response.processed_image;
-            console.log("Detections:", response.detections);
-          }));
+        this.imageProcessingService.sendFrame(blob);
       }
     }, 'image/jpeg');
+  }
+
+  onSelectedObjectChange(): void {
+    this.imageProcessingService.sendSelectedObject(this.selectedObject);
   }
 }

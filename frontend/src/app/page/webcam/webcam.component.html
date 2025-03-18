@@ -11,24 +11,22 @@
     </div>
     <div class="control-group">
       <label for="objectSelect">Select Object:</label>
-      <select id="objectSelect" [(ngModel)]="selectedObject">
+      <select id="objectSelect" [(ngModel)]="selectedObject" (change)="onSelectedObjectChange()">
         <option *ngFor="let obj of fixedObjects" [value]="obj">
           {{ obj }}
         </option>
       </select>
     </div>
-    <button class="toggle-btn" (click)="toggleProcessing()">
-      {{ processing ? 'Stop Processing' : 'Start Processing' }}
-    </button>
   </div>
-  <div class="video-section">
-    <video #video [hidden]="processing" autoplay class="video-feed"></video>
-  </div>
-  <canvas #canvas width="640" height="480" hidden></canvas>
-  @if (processedImage) {
-    <div class="output-section">
-      <h2>Processed Output</h2>
-      <img [src]="'data:image/jpeg;base64,' + processedImage" alt="Processed Output" class="output-image">
+  <div class="side-by-side-container">
+    <div class="video-section">
+      <h3>Live Webcam Stream</h3>
+      <video #video autoplay muted playsinline width="640" height="480"></video>
+      <canvas #canvas hidden width="640" height="480"></canvas>
     </div>
-  }
-</div>
+
+    <div class="processed-section">
+      <h3>Processed Image</h3>
+      <img [src]="'data:image/jpeg;base64,' + processedImage" alt="Processed Frame" width="640" height="480" />
+    </div>
+  </div>

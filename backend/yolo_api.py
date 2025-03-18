@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
 import tensorflow as tf
-from fastapi import FastAPI, File, UploadFile, Form
-from fastapi.responses import JSONResponse
+import json
+from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 import base64
 from skimage.feature import graycomatrix, graycoprops
@@ -109,18 +109,57 @@ def process_frame(frame: np.ndarray, selected_object: str):
     
     return img_encoded, detections
 
-@app.post("/process-frame")
-async def process_frame_api(selected_object: str = Form(...), file: UploadFile = File(...)):
-    file_bytes = await file.read()
-    np_arr = np.frombuffer(file_bytes, np.uint8)
-    img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
-    
-    processed_img, detections = process_frame(img, selected_object)
-    
-    return JSONResponse(content={
-        "processed_image": processed_img,
-        "detections": detections
-    })
+# Endpoint WebSocket con actualización dinámica de selected_object
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    # Valor por defecto; se puede actualizar vía mensaje JSON
+    selected_object = "person"
+    while True:
+        try:
+            message = await websocket.receive()
+            print("Mensaje recibido:", message)
+            
+            # Si se recibe un mensaje de texto, intentar interpretar si es un comando para actualizar el objeto
+            if "text" in message and message["text"]:
+                try:
+                    data_json = json.loads(message["text"])
+                    if "selected_object" in data_json:
+                        selected_object = data_json["selected_object"]
+                        print("Objeto seleccionado actualizado a:", selected_object)
+                        await websocket.send_text(f"selected_object actualizado a {selected_object}")
+                        continue
+                except json.JSONDecodeError:
+                    pass
+            
+            data = None
+            if "bytes" in message and message["bytes"] is not None:
+                data = message["bytes"]
+            elif "text" in message and message["text"] is not None:
+                data = message["text"].encode('utf-8')
+            else:
+                print("Mensaje sin datos válidos")
+                continue
+
+            if not isinstance(data, (bytes, bytearray)):
+                print("Tipo de data incorrecto:", type(data))
+                continue
+
+            np_arr = np.frombuffer(data, np.uint8)
+            frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+            if frame is None:
+                print("Error al decodificar la imagen")
+                continue
+            
+            processed_img, detections = process_frame(frame, selected_object)
+            response = {
+                "processed_image": processed_img,
+                "detections": detections
+            }
+            await websocket.send_text(json.dumps(response))
+        except Exception as e:
+            print("Error en la conexión WebSocket:", e)
+            break
 
 if __name__ == "__main__":
     import uvicorn

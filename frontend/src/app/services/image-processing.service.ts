@@ -1,19 +1,45 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+
+
+export interface ProcessedData {
+  processed_image: string;
+  detections: any[];
+}
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class ImageProcessingService {
+  private ws!: WebSocket;
+  public processedData$ = new Subject<ProcessedData>();
 
-  private readonly apiUrl = 'http://localhost:8000/process-frame';
-  private readonly http = inject(HttpClient)
+  connect(): void {
+    this.ws = new WebSocket("ws://localhost:8000/ws");
+    this.ws.onmessage = (message) => {
+      try {
+        const data: ProcessedData = JSON.parse(message.data);
+        this.processedData$.next(data);
+      } catch (e) {
+        console.error("Error parsing WebSocket message", e);
+      }
+    };
+    this.ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+  }
 
-  processFrame(selectedObject: string, imageFile: File): Observable<any> {
-    const formData = new FormData();
-    formData.append('selected_object', selectedObject);
-    formData.append('file', imageFile);
-    return this.http.post<any>(this.apiUrl, formData);
+  sendFrame(frameBlob: Blob): void {
+    frameBlob.arrayBuffer().then(buffer => {
+      const uint8Buffer = new Uint8Array(buffer);
+      this.ws.send(uint8Buffer);
+    });
+  }
+
+  sendSelectedObject(selectedObject: string): void {
+    const msg = JSON.stringify({ selected_object: selectedObject });
+    this.ws.send(msg);
   }
 }

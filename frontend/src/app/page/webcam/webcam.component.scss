@@ -1,19 +1,32 @@
  .container {
-    max-width: 800px;
+    max-width: 100%;
+    max-height: 100%;
     margin: 2rem auto;
     padding: 1rem 1.5rem;
-    background-color: #f7f7f7;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
+  .side-by-side-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .video-section,
+  .processed-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
   .title {
     text-align: center;
     color: #333;
     margin-bottom: 1.5rem;
   }
 
-  /* Controls */
   .controls {
     display: flex;
     flex-wrap: wrap;
@@ -52,7 +65,6 @@
     background-color: #005fa3;
   }
 
-  /* Video Section */
   .video-section {
     display: flex;
     justify-content: center;
@@ -65,7 +77,6 @@
     height: auto;
   }
 
-  /* Processed Output */
   .output-section {
     text-align: center;
     margin-top: 1.5rem;
