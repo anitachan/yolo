@@ -30,7 +30,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     image: yolo_frontend:1.0
-    command: bash -c "cd /frontend && npm install && npm run dev -- --host 0.0.0.0 --port 5000"
+    command: bash -c "cd /frontend && npm install && npm run start -- --host 0.0.0.0 --port 5000"
     volumes:
       - ./frontend:/frontend
     depends_on:
