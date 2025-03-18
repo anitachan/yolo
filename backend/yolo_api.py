@@ -109,7 +109,6 @@ def process_frame(frame: np.ndarray, selected_object: str):
     
     return img_encoded, detections
 
-# Endpoint WebSocket con actualización dinámica de selected_object
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
