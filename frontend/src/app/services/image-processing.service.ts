@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -7,9 +7,8 @@ import { Observable } from 'rxjs';
 })
 export class ImageProcessingService {
 
-  private apiUrl = 'http://localhost:8000/process-frame';
-
-  constructor(private http: HttpClient) { }
+  private readonly apiUrl = 'http://localhost:8000/process-frame';
+  private readonly http = inject(HttpClient)
 
   processFrame(selectedObject: string, imageFile: File): Observable<any> {
     const formData = new FormData();

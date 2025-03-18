@@ -6,7 +6,7 @@ WORKDIR /frontend
 COPY package*.json ./
 RUN npm install
 
-COPY ./app ./
+COPY ./src/app ./
 
 EXPOSE 5000
 
