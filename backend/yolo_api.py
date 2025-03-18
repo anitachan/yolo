@@ -12,7 +12,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:4200"],  # Or use ["*"] to allow all origins (for development)
+    allow_origins=["http://localhost:4200"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -20,7 +20,7 @@ app.add_middleware(
 
 # Load models (do this once at startup)
 mobilenet_model = tf.keras.applications.MobileNetV2(weights="imagenet")
-yolo_model = YOLO("yolov8s.pt")  # Ensure the model file is in the proper path
+yolo_model = YOLO("yolov8s.pt")  
 
 def process_frame(frame: np.ndarray, selected_object: str):
     # Convert image to grayscale
