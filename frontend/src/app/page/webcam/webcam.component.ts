@@ -30,6 +30,7 @@ export class WebcamComponent implements OnInit, OnDestroy, AfterViewInit {
   loading: boolean = false;
   statusMessage: string = '';
   errorMessage: string = '';
+  cameraPermissionGranted: boolean = false;
 
   private readonly subscription = new Subscription();
   private readonly imageProcessingService = inject(ImageProcessingService);
@@ -68,25 +69,46 @@ export class WebcamComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  getCameras() {
-    if (!isPlatformBrowser(this.platformId)) { return; }
-    navigator.mediaDevices.enumerateDevices()
-      .then(devices => {
-        this.availableCameras = devices.filter(device => device.kind === 'videoinput');
-        if (this.availableCameras.length > 0) {
-          this.selectedCamera = this.availableCameras[0].deviceId;
-          this.startCameraStream();
-        } else {
-          this.errorMessage = "No camera devices found.";
+    // Function to handle permission request
+    requestCameraPermission() {
+      if (isPlatformBrowser(this.platformId)) {
+        this.statusMessage = "Requesting camera access...";
+        navigator.mediaDevices.getUserMedia({ video: true })
+          .then(stream => {
+            // Permission granted, now start the camera stream
+            this.cameraPermissionGranted = true;
+            this.startCameraStream();
+            this.statusMessage = "Camera permission granted.";
+          })
+          .catch(err => {
+            // Handle error or permission denial
+            this.errorMessage = "Camera permission denied. Please allow access.";
+            this.statusMessage = "";
+          });
+      }
+    }
+
+    getCameras() {
+      if (!isPlatformBrowser(this.platformId)) { return; }
+      navigator.mediaDevices.enumerateDevices()
+        .then(devices => {
+          this.availableCameras = devices.filter(device => device.kind === 'videoinput');
+          if (this.availableCameras.length > 0) {
+            this.selectedCamera = this.availableCameras[0].deviceId;
+            // Automatically request permission if not granted
+            this.requestCameraPermission();
+          } else {
+            this.errorMessage = "No camera devices found.";
+            this.statusMessage = "";
+          }
+        })
+        .catch(err => {
+          console.error("Error enumerating devices:", err);
+          this.errorMessage = "Error accessing camera devices.";
           this.statusMessage = "";
-        }
-      })
-      .catch(err => {
-        console.error("Error enumerating devices:", err);
-        this.errorMessage = "Error accessing camera devices.";
-        this.statusMessage = "";
-      });
-  }
+        });
+    }
+
 
   startCameraStream() {
     if (!isPlatformBrowser(this.platformId) || !this.selectedCamera) { return; }
