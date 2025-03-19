@@ -1,11 +1,20 @@
 services:
+  backend:
+    container_name: fastapi_backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: yolo_backend:1.0
+    networks:
+      - erp_network
+    restart: always
+
   frontend:
     container_name: angular_frontend
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    ports:
-      - "4200:4200"
+    image: yolo_frontend:1.0
     networks:
       erp_network:
         aliases:
@@ -20,8 +29,12 @@ services:
     ports:
       - "80:80"
     networks:
-      - erp_network
+      erp_network:
+        aliases:
+          - backend
+          - frontend
     depends_on:
+      - backend
       - frontend
 
 networks:

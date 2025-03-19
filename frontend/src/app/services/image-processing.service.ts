@@ -15,7 +15,7 @@ export class ImageProcessingService {
   public processedData$ = new Subject<ProcessedData>();
 
   connect(): void {
-    this.ws = new WebSocket("ws://localhost:8000/ws");
+    this.ws = new WebSocket("ws://localhost/ws");
     this.ws.onmessage = (message) => {
       try {
         const data: ProcessedData = JSON.parse(message.data);
