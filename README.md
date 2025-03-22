@@ -11,7 +11,7 @@ Este proyecto permite ejecutar un modelo YOLO (You Only Look Once) para detecci√
 
 1. Clonar el repositorio:
 ```sh
-git clone https://github.com/tu-usuario/proyecto-yolo.git
+git clone https://github.com/anitachan/yolo
 cd proyecto-yolo
 ```
 
