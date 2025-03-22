@@ -173,6 +173,42 @@ body {
   }
 }
 
+.control-group {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+
+.control-group button {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  color: white;
+}
+
+.control-group button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.control-group button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+button:nth-child(1) { background-color: #28a745; }
+button:nth-child(2) { background-color: #dc3545; }
+button:nth-child(3) { background-color: #007bff; }
+
 .detection-label {
   font-weight: 600;
   color: #333;

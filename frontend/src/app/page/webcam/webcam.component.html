@@ -1,8 +1,10 @@
 <div class="container">
-  <h1 class="title">Real Time Detection - Border detections - Segmentation </h1>
+  <h1 class="title">Real Time Detection - Border detections - Segmentation</h1>
+
   @if(loading){
     <div class="spinner"></div>
   }
+
   <div class="messages">
     @if(statusMessage){
       <p class="status-message">{{ statusMessage }}</p>
@@ -17,9 +19,7 @@
       <label for="cameraSelect">Select Camera:</label>
       <select id="cameraSelect" [(ngModel)]="selectedCamera" (change)="startCameraStream()">
         @for(cam of availableCameras; track cam){
-          <option [value]="cam.deviceId">
-            {{ cam.label }}
-          </option>
+          <option [value]="cam.deviceId">{{ cam.label }}</option>
         }
       </select>
     </div>
@@ -27,11 +27,15 @@
       <label for="objectSelect">Select Object:</label>
       <select id="objectSelect" [(ngModel)]="selectedObject" (change)="onSelectedObjectChange()">
         @for(object of fixedObjects; track object){
-          <option [value]="object">
-            {{ object }}
-          </option>
+          <option [value]="object">{{ object }}</option>
         }
       </select>
+    </div>
+
+    <div class="control-group">
+      <button (click)="startDetection()" [disabled]="isDetecting">Iniciar detección</button>
+      <button (click)="pauseDetection()" [disabled]="!isDetecting">Pausar detección</button>
+      <button (click)="takeScreenshot()" [disabled]="!processedImage">Capturar imagen</button>
     </div>
   </div>
 
