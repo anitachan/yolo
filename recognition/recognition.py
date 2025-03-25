@@ -155,8 +155,8 @@ def reconocimiento_tiempo_real():
         canny_color = np.zeros_like(frame)
         canny_color[canny_total != 0] = (255, 255, 255)
 
-        if rostros:
-            x1, y1, x2, y2 = expandir_caja(*rostros[0], frame.shape)
+        for (x1, y1, x2, y2) in rostros:
+            x1, y1, x2, y2 = expandir_caja(x1, y1, x2, y2, frame.shape)
             rostro = frame[y1:y2, x1:x2].copy()
 
             try:
@@ -182,6 +182,7 @@ def reconocimiento_tiempo_real():
                 canny_color[y1:y2, x1:x2][rostro_area != 0] = (0, 0, 255)
                 cv2.rectangle(canny_color, (x1, y1), (x2, y2), (0, 255, 0), 2)
                 dibujar_etiqueta(canny_color, x1, y1, texto)
+
 
         if HISTORIAL:
             dibujar_panel_lateral(frame, HISTORIAL)
