@@ -44,3 +44,5 @@ Thumbs.db
 */.ipynb_checkpoints/
 */venv
 
+
+**/faces_dataset/*
