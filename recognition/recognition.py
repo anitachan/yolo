@@ -7,7 +7,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from keras_facenet import FaceNet
 from ultralytics import YOLO
 from utils import (aplicar_resolucion, mejorar_imagen, expandir_caja,
-                   dibujar_etiqueta, dibujar_panel_lateral, mostrar_cargando, RESOLUCIONES)
+                   dibujar_etiqueta, dibujar_panel_lateral, mostrar_cargando)
 
 DATASET_DIR = "recognition/faces_dataset"
 EMBEDDINGS_PATH = "recognition/embeddings.npy"
@@ -18,8 +18,6 @@ HISTORIAL = deque(maxlen=10)
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(CURRENT_DIR, "models", "yolov8n-face-lindevs.pt")
 
-
-# start model ------------------
 embedder = FaceNet()
 detector = YOLO(MODEL_PATH)
 

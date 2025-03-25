@@ -1,4 +1,4 @@
-
+import cv2
 from recognition import recolectar_imagenes, generar_base_de_datos, reconocimiento_tiempo_real
 from utils import detectar_resoluciones_soportadas, RESOLUCIONES
 
@@ -27,6 +27,7 @@ def menu():
             reconocimiento_tiempo_real()
         elif opcion == "4":
             print("\nSelecciona resolución:")
+            key = cv2.waitKey(1)
             for key, (w, h) in RESOLUCIONES.items():
                 print(f"{key}. {w}x{h}")
             nueva = input("Opción: ").strip()

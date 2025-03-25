@@ -44,5 +44,5 @@ Thumbs.db
 */.ipynb_checkpoints/
 */venv
 
-
-**/faces_dataset/*
+#user-dataset
+recognition/faces_dataset
